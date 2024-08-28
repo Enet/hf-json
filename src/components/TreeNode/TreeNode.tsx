@@ -68,7 +68,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                 const newPathSegments = [...pathSegments, isArray ? `[${key}]` : `${key}`];
                 const handleKeyClick = () => onClick(newPathSegments, value);
                 return (
-                    <div key={key} className={styles.body} style={{paddingLeft: (pathSegments.length + 1) * 16}}>
+                    <div key={key} className={styles.body}>
                         {!isArray && (
                             <>
                                 <span
@@ -99,7 +99,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
             >
                 {isArray ? ']' : '}'}
             </span>
-            {pathSegments.length > 1 && commaCharacter}
+            {pathSegments.length > 0 && commaCharacter}
             <br />
         </span>
     );

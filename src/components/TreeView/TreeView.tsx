@@ -22,7 +22,7 @@ export const TreeView: React.FC<Props> = ({jsonData, onNodeClick = noop}) => {
             {isJsonData(jsonData) ? (
                 <TreeNode jsonData={jsonData} pathSegments={pathSegments} onClick={onNodeClick} />
             ) : (
-                <div className={styles.placeholder}>No data</div>
+                <div className={styles.placeholder}>Invalid JSON can not be parsed</div>
             )}
         </div>
     );

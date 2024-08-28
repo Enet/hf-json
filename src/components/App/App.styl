@@ -3,9 +3,15 @@
     flex-flow: row nowrap
     height: 100%
 
+    @media (max-width: 800px)
+        flex-direction: column
+
 .left,
 .right
     flex: 1
+
+    @media (max-width: 800px)
+        height: 50vh
 
 .left
     display: flex
