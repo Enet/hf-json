@@ -1,0 +1,27 @@
+{
+    "ts-node": {
+        "compilerOptions": {
+            "module": "commonjs"
+        }
+    },
+    "compilerOptions": {
+        "baseUrl": "src",
+        "outDir": "dist",
+        "skipLibCheck": true,
+        "strict": true,
+        "noImplicitThis": true,
+        "esModuleInterop": true,
+        "allowJs": true,
+        "jsx": "react-jsx",
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "lib": ["DOM"],
+        "target": "ES5",
+        "paths": {
+            "components/*": ["./components/*"],
+            "constants/*": ["./constants/*"],
+            "types/*": ["./types/*"],
+            "utils/*": ["./utils/*"]
+        }
+    }
+}

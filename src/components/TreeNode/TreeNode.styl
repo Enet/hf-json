@@ -1,0 +1,29 @@
+.treeNode
+    font-family: monospace
+    font-size: 16px
+    line-height: 1.5
+
+    &.isLeaf
+        cursor: pointer
+
+        &:hover
+            color: green
+
+.treeNodeKey
+    cursor: pointer
+    color: darkred
+
+    &:hover
+        text-decoration: underline
+        color: red
+
+.treeNodeHeader,
+.treeNodeFooter
+    cursor: pointer
+
+.treeNodeHeader,
+.treeNodeFooter,
+.treeNodeBody,
+.treeNodeKey
+    .treeNode.isHovered &
+        color: blue
