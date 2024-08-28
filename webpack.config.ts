@@ -1,10 +1,15 @@
 import 'webpack-dev-server';
+
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import path from 'path';
+import ReactRefreshTypeScript from 'react-refresh-typescript';
 import webpack from 'webpack';
 
 const configuration: webpack.Configuration = {
     mode: 'development',
-    entry: path.resolve(__dirname, 'src', 'index.tsx'),
+    entry: {
+        bundle: path.resolve(__dirname, 'src', 'index.tsx'),
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
@@ -13,7 +18,16 @@ const configuration: webpack.Configuration = {
         rules: [
             {
                 test: /\.(?:j|t)s(?:x)?$/,
-                loader: 'ts-loader',
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            getCustomTransformers: () => ({
+                                before: [ReactRefreshTypeScript()],
+                            }),
+                        },
+                    },
+                ],
                 exclude: /node_modules/,
             },
             {
@@ -57,6 +71,7 @@ const configuration: webpack.Configuration = {
             utils: path.resolve(__dirname, 'src', 'utils'),
         },
     },
+    plugins: [new ReactRefreshWebpackPlugin()],
 };
 
 export default configuration;
