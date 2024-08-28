@@ -1,9 +1,11 @@
-import './TreeView.styl';
 import {useMemo} from 'react';
-import {isJsonData} from 'utils/json';
-import {JsonData} from 'types/json';
+
 import {TreeNode} from 'components/TreeNode/TreeNode';
+import {JsonData} from 'types/json';
 import {noop} from 'utils/common';
+import {isJsonData} from 'utils/json';
+
+import styles from './TreeView.styl';
 
 type Props = {
     jsonData?: JsonData;
@@ -16,11 +18,11 @@ export const TreeView: React.FC<Props> = ({jsonData, onNodeClick = noop}) => {
     }, [jsonData]);
 
     return (
-        <div className='treeView'>
+        <div className={styles.treeView}>
             {isJsonData(jsonData) ? (
                 <TreeNode jsonData={jsonData} pathSegments={pathSegments} onClick={onNodeClick} />
             ) : (
-                <div className='treeViewPlaceholder'>No data</div>
+                <div className={styles.placeholder}>No data</div>
             )}
         </div>
     );

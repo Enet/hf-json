@@ -1,6 +1,8 @@
+import 'webpack-dev-server';
 import path from 'path';
+import webpack from 'webpack';
 
-export default {
+const configuration: webpack.Configuration = {
     mode: 'development',
     entry: path.resolve(__dirname, 'src', 'index.tsx'),
     output: {
@@ -18,7 +20,16 @@ export default {
                 test: /\.styl$/,
                 use: [
                     'style-loader',
-                    'css-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: '[folder]-[hash:base64:2]_[local]',
+                                exportLocalsConvention: 'asIs',
+                                namedExport: false,
+                            },
+                        },
+                    },
                     {
                         loader: 'stylus-loader',
                         options: {
@@ -30,14 +41,12 @@ export default {
                     },
                 ],
             },
-            {
-                test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
-            },
         ],
     },
     devServer: {
         hot: true,
+        port: 7331,
+        open: true,
         static: path.resolve(__dirname, 'dist'),
     },
     resolve: {
@@ -49,3 +58,5 @@ export default {
         },
     },
 };
+
+export default configuration;

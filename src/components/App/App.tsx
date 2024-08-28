@@ -1,10 +1,16 @@
-import './App.styl';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 
 import {FieldDescription} from 'components/FieldDescription/FieldDescription';
 import {TreeView} from 'components/TreeView/TreeView';
-import {useCallback, useEffect, useMemo, useState} from 'react';
 import {JsonData} from 'types/json';
 import {isJsonData, isJsonValue} from 'utils/json';
+
+import styles from './App.styl';
+
+type ActiveField = {
+    path: string;
+    value?: JsonData;
+};
 
 const initialJsonData = {
     date: '2021-10-27T07:49:14.896Z',
@@ -66,52 +72,57 @@ export const App: React.FC = () => {
         }
     }, [textData]);
 
-    const [fieldPath, setFieldPath] = useState('');
-
-    const [fieldValue, setFieldValue] = useState(jsonData);
+    const [activeField, setActiveField] = useState({
+        path: '',
+        value: jsonData,
+    } as ActiveField);
 
     const handleTextDataChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTextData(event.target.value);
     }, []);
 
     const handleTreeViewNodeClick = useCallback((pathSegments: string[], value: JsonData) => {
-        setFieldPath(pathSegments.join('.').replace(/\.\[(\d+)\]/g, '[$1]'));
-        setFieldValue(value);
+        const path = pathSegments.join('.').replace(/\.\[(\d+)\]/g, '[$1]');
+        setActiveField({path, value});
     }, []);
 
     const handleFieldPathInputChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
-            setFieldPath(event.target.value);
-            const mutableReversedPathSegments = event.target.value
+            const path = event.target.value;
+            const mutableReversedPathSegments = path
                 .replace(/\[(\d+)\]/g, '.$1')
                 .split('.')
                 .reverse();
-            if (!event.target.value) {
+            if (!path) {
                 mutableReversedPathSegments.pop();
             }
-            setFieldValue(findFieldValue(mutableReversedPathSegments, jsonData));
+            const value = findFieldValue(mutableReversedPathSegments, jsonData);
+            setActiveField({path, value});
         },
         [jsonData],
     );
 
     useEffect(() => {
-        setFieldPath('');
-        setFieldValue(jsonData);
+        setActiveField({path: '', value: jsonData});
     }, [jsonData]);
 
     return (
-        <div className='app'>
-            <div className='appLeft'>
+        <div className={styles.app}>
+            <div className={styles.left}>
                 <FieldDescription label='Field Path'>
-                    <input className='appFieldPathInput' value={fieldPath} onChange={handleFieldPathInputChange} />
+                    <input
+                        className={styles.fieldPathInput}
+                        value={activeField.path}
+                        onChange={handleFieldPathInputChange}
+                    />
                 </FieldDescription>
-                <FieldDescription label='Field Value'>{renderFieldValue(fieldValue)}</FieldDescription>
-                <FieldDescription label='Field Type'>{renderFieldType(fieldValue)}</FieldDescription>
+                <FieldDescription label='Field Value'>{renderFieldValue(activeField.value)}</FieldDescription>
+                <FieldDescription label='Field Type'>{renderFieldType(activeField.value)}</FieldDescription>
                 <br />
                 <TreeView jsonData={jsonData} onNodeClick={handleTreeViewNodeClick} />
             </div>
-            <div className='appRight'>
-                <textarea className='appTextDataTextarea' value={textData} onChange={handleTextDataChange} />
+            <div className={styles.right}>
+                <textarea className={styles.textDataTextarea} value={textData} onChange={handleTextDataChange} />
             </div>
         </div>
     );

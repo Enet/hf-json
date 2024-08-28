@@ -1,7 +1,10 @@
-import './TreeNode.styl';
+import cn from 'classnames';
 import {useCallback, useMemo, useState} from 'react';
-import {isJsonData, isJsonValue} from 'utils/json';
+
 import {JsonData, JsonValue} from 'types/json';
+import {isJsonData, isJsonValue} from 'utils/json';
+
+import styles from './TreeNode.styl';
 
 const commaCharacter = ',';
 
@@ -40,16 +43,16 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
 
     if (isJsonValue(jsonData)) {
         return (
-            <span className='treeNode isLeaf' onClick={handleClick}>
+            <span className={cn(styles.treeNode, styles.isLeaf)} onClick={handleClick}>
                 {renderJsonValue(jsonData)}
             </span>
         );
     }
 
     return (
-        <span className={`treeNode ${isHovered ? 'isHovered' : ''}`}>
+        <span className={cn(styles.treeNode, isHovered && styles.isHovered)}>
             <span
-                className='treeNodeHeader'
+                className={styles.header}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onClick={handleClick}
@@ -65,11 +68,11 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                 const newPathSegments = [...pathSegments, isArray ? `[${key}]` : `${key}`];
                 const handleKeyClick = () => onClick(newPathSegments, value);
                 return (
-                    <div key={key} className='treeNodeBody' style={{paddingLeft: (pathSegments.length + 1) * 16}}>
+                    <div key={key} className={styles.body} style={{paddingLeft: (pathSegments.length + 1) * 16}}>
                         {!isArray && (
                             <>
                                 <span
-                                    className={`treeNodeKey ${isKeyDangerous ? 'isDangerous' : ''}`}
+                                    className={cn(styles.key, isKeyDangerous && styles.isDangerous)}
                                     title={isKeyDangerous ? 'This key breaks navigation in JSON Explorer' : undefined}
                                     onClick={handleKeyClick}
                                 >
@@ -89,7 +92,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                 );
             })}
             <span
-                className='treeNodeFooter'
+                className={styles.footer}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onClick={handleClick}
