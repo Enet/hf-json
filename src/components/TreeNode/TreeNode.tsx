@@ -2,9 +2,10 @@ import './TreeNode.styl';
 import {useCallback, useMemo, useState} from 'react';
 import {isJsonData, isJsonValue} from 'utils/json';
 import {JsonData, JsonValue} from 'types/json';
-import {TreeNodeEvent} from 'types/tree';
 
 const commaCharacter = ',';
+
+const specialCharacterRegExp = /[.\[\]]/;
 
 const renderJsonValue = (value: JsonValue) => {
     return typeof value === 'string' ? `"${value}"` : `${value}`;
@@ -13,13 +14,11 @@ const renderJsonValue = (value: JsonValue) => {
 type Props = {
     jsonData: JsonData;
     pathSegments: string[];
-    onClick: (event: TreeNodeEvent) => void;
+    onClick: (pathSegments: string[], value: JsonData) => void;
 };
 
 export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => {
     const isArray = jsonData instanceof Array;
-
-    const path = pathSegments.join('');
 
     const entries = useMemo(() => {
         return Object.entries(jsonData || {});
@@ -28,8 +27,8 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
     const [isHovered, setIsHovered] = useState(false);
 
     const handleClick = useCallback(() => {
-        onClick({path, value: jsonData});
-    }, [jsonData, path, onClick]);
+        onClick(pathSegments, jsonData);
+    }, [jsonData, pathSegments, onClick]);
 
     const handleMouseEnter = useCallback(() => {
         setIsHovered(true);
@@ -62,21 +61,24 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                 if (!isJsonData(value)) {
                     return null;
                 }
-                const newPathSegment = isArray ? `[${key}]` : `.${key}`;
-                const handleKeyClick = () => {
-                    onClick && onClick({path: `${path}${newPathSegment}`, value});
-                };
+                const isKeyDangerous = specialCharacterRegExp.test(key);
+                const newPathSegments = [...pathSegments, isArray ? `[${key}]` : `${key}`];
+                const handleKeyClick = () => onClick(newPathSegments, value);
                 return (
-                    <div key={key} className='treeNodeBody' style={{paddingLeft: pathSegments.length * 16}}>
+                    <div key={key} className='treeNodeBody' style={{paddingLeft: (pathSegments.length + 1) * 16}}>
                         {!isArray && (
                             <>
-                                <span className='treeNodeKey' onClick={handleKeyClick}>
+                                <span
+                                    className={`treeNodeKey ${isKeyDangerous ? 'isDangerous' : ''}`}
+                                    title={isKeyDangerous ? 'This key breaks navigation in JSON Explorer' : undefined}
+                                    onClick={handleKeyClick}
+                                >
                                     {renderJsonValue(key)}
                                 </span>
                                 <span>: </span>
                             </>
                         )}
-                        <TreeNode jsonData={value} pathSegments={[...pathSegments, newPathSegment]} onClick={onClick} />
+                        <TreeNode jsonData={value} pathSegments={newPathSegments} onClick={onClick} />
                         {isJsonValue(value) && (
                             <>
                                 {commaCharacter}

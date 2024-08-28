@@ -19,7 +19,6 @@
         "target": "ES5",
         "paths": {
             "components/*": ["./components/*"],
-            "constants/*": ["./constants/*"],
             "types/*": ["./types/*"],
             "utils/*": ["./utils/*"]
         }

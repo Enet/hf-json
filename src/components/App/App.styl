@@ -8,11 +8,29 @@
     flex: 1
 
 .appLeft
+    display: flex
+    flex-flow: column nowrap
     padding: 16px
     box-sizing: border-box
 
 .appRight
     font-size: 0
+
+.appFieldPathInput
+    font-size: 16px
+    font-family: monospace
+    padding: 4px
+    margin: 0
+    box-sizing: border-box
+    height: 32px
+    width: 100%
+    border: 1px rgba(black, 0.2) solid;
+    border-radius: 4px
+    outline: none
+    transition: border-color 100ms;
+
+    &:focus
+        border-color: rgba(black, 0.5)
 
 .appTextDataTextarea
     padding: 16px
