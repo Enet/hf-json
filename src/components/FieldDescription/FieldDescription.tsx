@@ -7,9 +7,9 @@ type Props = {
 
 export const FieldDescription: React.FC<Props> = ({label, children}) => {
     return (
-        <div className={styles.fieldDescription}>
-            <label className={styles.label}>{label}</label>
+        <label className={styles.fieldDescription}>
+            <div className={styles.label}>{label}</div>
             <div className={styles.value}>{children}</div>
-        </div>
+        </label>
     );
 };
