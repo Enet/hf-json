@@ -50,6 +50,7 @@ const configuration: webpack.Configuration = {
                             stylusOptions: {
                                 use: ['nib'],
                                 import: ['nib'],
+                                include: [path.join(__dirname, 'src')],
                             },
                         },
                     },

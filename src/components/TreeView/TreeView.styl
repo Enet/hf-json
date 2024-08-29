@@ -1,10 +1,12 @@
+@import 'styles/constants.styl'
+
 .treeView
     overflow-y: auto
-    padding: 8px
-    border: 1px rgba(0, 0, 0, 0.2) solid;
-    border-radius: 8px
+    padding: 2 * $baseSize
+    border: 1px $colorBlack20 solid;
+    border-radius: 2 * $baseSize
     flex: 1
 
 .placeholder
-    color: red
-    padding: 0 8px
+    color: $colorFireOrange
+    padding: 0 2 * $baseSize

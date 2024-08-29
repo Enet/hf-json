@@ -1,35 +1,35 @@
+@import 'styles/constants.styl'
+
 .treeNode
     font-family: monospace
-    font-size: 16px
-    line-height: 1.5
 
     &.isLeaf
         cursor: pointer
 
         &:hover
-            color: green
+            color: $colorGreen
 
 .key
     cursor: pointer
-    color: darkred
+    color: $colorDarkRed
 
     &:hover
         text-decoration: underline
-        color: red
+        color: $colorRed
 
     &.isDangerous
-        color: orange
+        color: $colorFireOrange
 
 .header,
 .footer
     cursor: pointer
 
 .body
-    padding-left: 16px
+    padding-left: 4 * $baseSize
 
 .header,
 .footer,
 .body,
 .key
     .treeNode.isHovered &
-        color: blue
+        color: $colorBlue

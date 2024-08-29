@@ -6,8 +6,6 @@ import {isJsonData, isJsonValue} from 'utils/json';
 
 import styles from './TreeNode.styl';
 
-const commaCharacter = ',';
-
 const specialCharacterRegExp = /[.\[\]]/;
 
 const renderJsonValue = (value: JsonValue) => {
@@ -84,7 +82,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                         <TreeNode jsonData={value} pathSegments={newPathSegments} onClick={onClick} />
                         {isJsonValue(value) && (
                             <>
-                                {commaCharacter}
+                                {','}
                                 <br />
                             </>
                         )}
@@ -99,7 +97,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
             >
                 {isArray ? ']' : '}'}
             </span>
-            {pathSegments.length > 0 && commaCharacter}
+            {pathSegments.length > 0 && ','}
             <br />
         </span>
     );
