@@ -13,23 +13,23 @@ const renderJsonValue = (value: JsonValue) => {
 };
 
 type Props = {
-    jsonData: JsonData;
-    pathSegments: string[];
-    onClick: (pathSegments: string[], value: JsonData) => void;
+    nodePath: string; // for example, .aaa.[0].bbb
+    nodeValue: JsonData;
+    onClick: (nodePath: string, nodeValue: JsonData) => void;
 };
 
-export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => {
-    const isArray = jsonData instanceof Array;
+export const TreeNode: React.FC<Props> = ({nodePath, nodeValue, onClick}) => {
+    const isArray = nodeValue instanceof Array;
 
     const entries = useMemo(() => {
-        return Object.entries(jsonData || {});
-    }, [jsonData]);
+        return Object.entries(nodeValue || {});
+    }, [nodeValue]);
 
     const [isHovered, setIsHovered] = useState(false);
 
     const handleClick = useCallback(() => {
-        onClick(pathSegments, jsonData);
-    }, [jsonData, pathSegments, onClick]);
+        onClick(nodePath, nodeValue);
+    }, [nodePath, nodeValue, onClick]);
 
     const handleMouseEnter = useCallback(() => {
         setIsHovered(true);
@@ -39,10 +39,10 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
         setIsHovered(false);
     }, []);
 
-    if (isJsonValue(jsonData)) {
+    if (isJsonValue(nodeValue)) {
         return (
             <span className={cn(styles.treeNode, styles.isLeaf)} onClick={handleClick}>
-                {renderJsonValue(jsonData)}
+                {renderJsonValue(nodeValue)}
             </span>
         );
     }
@@ -63,8 +63,9 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                     return null;
                 }
                 const isKeyDangerous = specialCharacterRegExp.test(key);
-                const newPathSegments = [...pathSegments, isArray ? `[${key}]` : `${key}`];
-                const handleKeyClick = () => onClick(newPathSegments, value);
+                const newNodePathSegment = isArray ? `[${key}]` : `${key}`;
+                const newNodePath = `${nodePath}.${newNodePathSegment}`;
+                const handleKeyClick = () => onClick(newNodePath, value);
                 return (
                     <div key={key} className={styles.body}>
                         {!isArray && (
@@ -79,7 +80,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
                                 <span>: </span>
                             </>
                         )}
-                        <TreeNode jsonData={value} pathSegments={newPathSegments} onClick={onClick} />
+                        <TreeNode nodePath={newNodePath} nodeValue={value} onClick={onClick} />
                         {isJsonValue(value) && (
                             <>
                                 {','}
@@ -97,7 +98,7 @@ export const TreeNode: React.FC<Props> = ({jsonData, pathSegments, onClick}) => 
             >
                 {isArray ? ']' : '}'}
             </span>
-            {pathSegments.length > 0 && ','}
+            {nodePath.length > 0 && ','}
             <br />
         </span>
     );

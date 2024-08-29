@@ -8,8 +8,8 @@ import {isJsonData, isJsonValue} from 'utils/json';
 import styles from './App.styl';
 
 type ActiveField = {
-    path: string;
-    value?: JsonData;
+    fieldPath: string; // for example, aaa[0].bbb
+    fieldValue?: JsonData;
 };
 
 const initialJsonData = {
@@ -27,27 +27,27 @@ const initialJsonData = {
 
 const initialTextData = JSON.stringify(initialJsonData, null, 4);
 
-const getMutableReversedPathSegments = (path: string) => {
-    const mutableReversedPathSegments = path
+const getMutableReversedFieldPathSegments = (fieldPath: string) => {
+    const mutableReversedFieldPathSegments = fieldPath
         .replace(/\[(\d+)\]/g, '.$1')
         .split('.')
         .reverse();
-    if (!path) {
-        mutableReversedPathSegments.pop();
+    if (!fieldPath) {
+        mutableReversedFieldPathSegments.pop();
     }
-    return mutableReversedPathSegments;
+    return mutableReversedFieldPathSegments;
 };
 
-const findFieldValue = (mutableReversedPathSegments: string[], jsonData?: unknown): JsonData | undefined => {
+const findFieldValue = (mutableReversedFieldPathSegments: string[], jsonData?: unknown): JsonData | undefined => {
     if (!isJsonData(jsonData)) {
         return;
-    } else if (mutableReversedPathSegments.length) {
-        const key = mutableReversedPathSegments.pop();
+    } else if (mutableReversedFieldPathSegments.length) {
+        const key = mutableReversedFieldPathSegments.pop();
         if (isJsonValue(jsonData) || key === undefined || !(key in jsonData)) {
             return;
         }
         return findFieldValue(
-            mutableReversedPathSegments,
+            mutableReversedFieldPathSegments,
             jsonData instanceof Array ? jsonData[Number(key)] : jsonData[key],
         );
     }
@@ -84,39 +84,39 @@ export const App: React.FC = () => {
     }, [textData]);
 
     const [activeField, setActiveField] = useState({
-        path: '',
-        value: jsonData,
+        fieldPath: '',
+        fieldValue: jsonData,
     } as ActiveField);
 
     const handleTextDataTextareaChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setTextData(event.target.value);
     }, []);
 
-    const handleTreeViewNodeClick = useCallback((pathSegments: string[], value: JsonData) => {
-        const path = pathSegments.join('.').replace(/\.\[(\d+)\]/g, '[$1]');
-        setActiveField({path, value});
+    const handleTreeViewNodeClick = useCallback((nodePath: string, nodeValue: JsonData) => {
+        const fieldPath = nodePath.replace(/\.\[(\d+)\]/g, '[$1]').replace(/^\./, '');
+        setActiveField({fieldPath, fieldValue: nodeValue});
     }, []);
 
     const handleFieldPathInputChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
-            const path = event.target.value;
-            const mutableReversedPathSegments = getMutableReversedPathSegments(path);
-            const value = findFieldValue(mutableReversedPathSegments, jsonData);
-            setActiveField({path, value});
+            const fieldPath = event.target.value;
+            const fieldValue = findFieldValue(getMutableReversedFieldPathSegments(fieldPath), jsonData);
+            setActiveField({fieldPath, fieldValue});
         },
         [jsonData],
     );
 
     useEffect(() => {
-        const {path} = activeField;
-        const mutableReversedPathSegments = getMutableReversedPathSegments(path);
-        const value = findFieldValue(mutableReversedPathSegments, jsonData);
-        if (isJsonData(value)) {
-            setActiveField({path, value});
-        } else {
-            setActiveField({path: '', value: jsonData});
+        const {fieldPath} = activeField;
+        const fieldValue = findFieldValue(getMutableReversedFieldPathSegments(fieldPath), jsonData);
+        if (isJsonData(fieldValue)) {
+            setActiveField({fieldPath, fieldValue});
+        } else if (isJsonData(jsonData)) {
+            setActiveField({fieldPath: '', fieldValue: jsonData});
         }
     }, [jsonData]);
+
+    const fieldValue = isJsonData(jsonData) ? activeField.fieldValue : undefined;
 
     return (
         <div className={styles.app}>
@@ -124,12 +124,12 @@ export const App: React.FC = () => {
                 <FieldDescription label='Field Path'>
                     <input
                         className={styles.fieldPathInput}
-                        value={activeField.path}
+                        value={activeField.fieldPath}
                         onChange={handleFieldPathInputChange}
                     />
                 </FieldDescription>
-                <FieldDescription label='Field Value'>{renderFieldValue(activeField.value)}</FieldDescription>
-                <FieldDescription label='Field Type'>{renderFieldType(activeField.value)}</FieldDescription>
+                <FieldDescription label='Field Value'>{renderFieldValue(fieldValue)}</FieldDescription>
+                <FieldDescription label='Field Type'>{renderFieldType(fieldValue)}</FieldDescription>
                 <br />
                 <TreeView jsonData={jsonData} onNodeClick={handleTreeViewNodeClick} />
             </div>
