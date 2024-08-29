@@ -68,6 +68,8 @@ const renderFieldType = (value?: JsonData) => {
         return 'invalid';
     } else if (value instanceof Array) {
         return 'array';
+    } else if (value === null) {
+        return 'null';
     }
     return typeof value;
 };
