@@ -4,7 +4,8 @@
     "description": "JSON Explorer Challenge",
     "main": "index.js",
     "scripts": {
-        "start": "webpack serve"
+        "start": "webpack serve",
+        "build": "NODE_ENV=production webpack"
     },
     "author": "Stepan Zhevak <stepan.zhevak@gmail.com> (https://zhevak.name)",
     "license": "GPL-3.0-only",

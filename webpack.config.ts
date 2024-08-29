@@ -5,8 +5,10 @@ import path from 'path';
 import ReactRefreshTypeScript from 'react-refresh-typescript';
 import webpack from 'webpack';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const configuration: webpack.Configuration = {
-    mode: 'development',
+    mode: isProduction ? 'production' : 'development',
     entry: {
         bundle: path.resolve(__dirname, 'src', 'index.tsx'),
     },
@@ -23,7 +25,7 @@ const configuration: webpack.Configuration = {
                         loader: 'ts-loader',
                         options: {
                             getCustomTransformers: () => ({
-                                before: [ReactRefreshTypeScript()],
+                                before: isProduction ? [] : [ReactRefreshTypeScript()],
                             }),
                         },
                     },
@@ -58,12 +60,6 @@ const configuration: webpack.Configuration = {
             },
         ],
     },
-    devServer: {
-        hot: true,
-        port: 7331,
-        open: true,
-        static: path.resolve(__dirname, 'dist'),
-    },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
         alias: {
@@ -72,7 +68,23 @@ const configuration: webpack.Configuration = {
             utils: path.resolve(__dirname, 'src', 'utils'),
         },
     },
-    plugins: [new ReactRefreshWebpackPlugin()],
+    devServer: isProduction
+        ? undefined
+        : {
+              hot: true,
+              port: 7331,
+              open: true,
+              static: path.resolve(__dirname, 'dist'),
+          },
+    plugins: isProduction
+        ? [
+              new webpack.DefinePlugin({
+                  'process.env': {
+                      NODE_ENV: JSON.stringify('production'),
+                  },
+              }),
+          ]
+        : [new ReactRefreshWebpackPlugin()],
 };
 
 export default configuration;
