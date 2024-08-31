@@ -2,18 +2,17 @@ import cn from 'classnames';
 import {useCallback, useMemo, useState} from 'react';
 
 import {JsonData, JsonValue} from 'types/json';
+import {escapeKey} from 'utils/common';
 import {isJsonData, isJsonValue} from 'utils/json';
 
 import styles from './TreeNode.styl';
 
-const specialCharacterRegExp = /[.\[\]]/;
-
 const renderJsonValue = (value: JsonValue) => {
-    return typeof value === 'string' ? `"${value}"` : `${value}`;
+    return typeof value === 'string' ? `"${value.replace(/"/g, '\\"')}"` : `${value}`;
 };
 
 type Props = {
-    nodePath: string; // for example, .aaa.[0].bbb
+    nodePath: string; // for example, .aaaa.[0].bb\.bb
     nodeValue: JsonData;
     onClick: (nodePath: string, nodeValue: JsonData) => void;
 };
@@ -62,19 +61,15 @@ export const TreeNode: React.FC<Props> = ({nodePath, nodeValue, onClick}) => {
                 if (!isJsonData(value)) {
                     return null;
                 }
-                const isKeyDangerous = specialCharacterRegExp.test(key);
-                const newNodePathSegment = isArray ? `[${key}]` : `${key}`;
+                const escapedKey = escapeKey(key);
+                const newNodePathSegment = isArray ? `[${escapedKey}]` : `${escapedKey}`;
                 const newNodePath = `${nodePath}.${newNodePathSegment}`;
                 const handleKeyClick = () => onClick(newNodePath, value);
                 return (
                     <div key={key} className={styles.body}>
                         {!isArray && (
                             <>
-                                <span
-                                    className={cn(styles.key, isKeyDangerous && styles.isDangerous)}
-                                    title={isKeyDangerous ? 'This key breaks navigation in JSON Explorer' : undefined}
-                                    onClick={handleKeyClick}
-                                >
+                                <span className={styles.key} onClick={handleKeyClick}>
                                     {renderJsonValue(key)}
                                 </span>
                                 <span>: </span>

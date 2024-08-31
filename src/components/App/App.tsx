@@ -3,12 +3,13 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import {FieldDescription} from 'components/FieldDescription/FieldDescription';
 import {TreeView} from 'components/TreeView/TreeView';
 import {JsonData} from 'types/json';
+import {unescapeKey} from 'utils/common';
 import {isJsonData, isJsonValue} from 'utils/json';
 
 import styles from './App.styl';
 
 type ActiveField = {
-    fieldPath: string; // for example, aaa[0].bbb
+    fieldPath: string; // for example, aaaa[0].bb\.bb
     fieldValue?: JsonData;
 };
 
@@ -28,14 +29,28 @@ const initialJsonData = {
 const initialTextData = JSON.stringify(initialJsonData, null, 4);
 
 const getMutableReversedFieldPathSegments = (fieldPath: string) => {
-    const mutableReversedFieldPathSegments = fieldPath
-        .replace(/\[(\d+)\]/g, '.$1')
-        .split('.')
-        .reverse();
-    if (!fieldPath) {
-        mutableReversedFieldPathSegments.pop();
+    const unifiedFieldPath = fieldPath.replace(/\[(\d+)\]/g, '.$1');
+    const fieldPathSegments: string[] = [];
+    let keyStartIndex = 0;
+    let isEscaped = false;
+    for (let u = 0, ul = unifiedFieldPath.length; u < ul; u++) {
+        const character = unifiedFieldPath[u];
+        if (isEscaped) {
+            isEscaped = false;
+            continue;
+        } else if (character === '\\') {
+            isEscaped = true;
+            continue;
+        } else if (character === '.') {
+            const escapedKey = unifiedFieldPath.slice(keyStartIndex, u);
+            fieldPathSegments.push(unescapeKey(escapedKey));
+            keyStartIndex = u + 1;
+        }
     }
-    return mutableReversedFieldPathSegments;
+    if (fieldPath) {
+        fieldPathSegments.push(unescapeKey(unifiedFieldPath.slice(keyStartIndex)));
+    }
+    return fieldPathSegments.reverse();
 };
 
 const findFieldValue = (mutableReversedFieldPathSegments: string[], jsonData?: unknown): JsonData | undefined => {
