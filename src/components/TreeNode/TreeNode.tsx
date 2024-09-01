@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const TreeNode: React.FC<Props> = memo(({nodePath, nodeValue, onClick}) => {
-    const isArray = nodeValue instanceof Array;
+    const isArray = Array.isArray(nodeValue);
 
     const entries = useMemo(() => {
         return Object.entries(nodeValue || {});
@@ -62,8 +62,8 @@ export const TreeNode: React.FC<Props> = memo(({nodePath, nodeValue, onClick}) =
                     return null;
                 }
                 const escapedKey = escapeKey(key);
-                const newNodePathSegment = isArray ? `[${escapedKey}]` : `${escapedKey}`;
-                const newNodePath = `${nodePath}.${newNodePathSegment}`;
+                const newNodePathKey = isArray ? `[${escapedKey}]` : `${escapedKey}`;
+                const newNodePath = `${nodePath}.${newNodePathKey}`;
                 const handleKeyClick = () => onClick(newNodePath, value);
                 return (
                     <div key={key} className={styles.body}>

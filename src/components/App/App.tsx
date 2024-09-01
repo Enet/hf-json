@@ -28,52 +28,48 @@ const initialJsonData = {
 
 const initialTextData = JSON.stringify(initialJsonData, null, 4);
 
-const getMutableReversedFieldPathSegments = (fieldPath: string) => {
+const getFieldPathKeys = (fieldPath: string) => {
     const unifiedFieldPath = fieldPath.replace(/\[(\d+)\]/g, '.$1');
-    const fieldPathSegments: string[] = [];
+    const fieldPathKeys: string[] = [];
     let keyStartIndex = 0;
-    let isEscaped = false;
+    let isCharacterEscaped = false;
     for (let u = 0, ul = unifiedFieldPath.length; u < ul; u++) {
         const character = unifiedFieldPath[u];
-        if (isEscaped) {
-            isEscaped = false;
+        if (isCharacterEscaped) {
+            isCharacterEscaped = false;
             continue;
         } else if (character === '\\') {
-            isEscaped = true;
+            isCharacterEscaped = true;
             continue;
         } else if (character === '.') {
             const escapedKey = unifiedFieldPath.slice(keyStartIndex, u);
-            fieldPathSegments.push(unescapeKey(escapedKey));
+            fieldPathKeys.push(unescapeKey(escapedKey));
             keyStartIndex = u + 1;
         }
     }
     if (fieldPath) {
-        fieldPathSegments.push(unescapeKey(unifiedFieldPath.slice(keyStartIndex)));
+        fieldPathKeys.push(unescapeKey(unifiedFieldPath.slice(keyStartIndex)));
     }
-    return fieldPathSegments.reverse();
+    return fieldPathKeys;
 };
 
-const findFieldValue = (mutableReversedFieldPathSegments: string[], jsonData?: unknown): JsonData | undefined => {
-    if (!isJsonData(jsonData)) {
-        return;
-    } else if (mutableReversedFieldPathSegments.length) {
-        const key = mutableReversedFieldPathSegments.pop();
-        if (isJsonValue(jsonData) || key === undefined || !(key in jsonData)) {
+const findFieldValue = (fieldPathKeys: string[], jsonData?: unknown): JsonData | undefined => {
+    let currentData = jsonData;
+    for (let f = 0, fl = fieldPathKeys.length; f < fl; f++) {
+        const key = fieldPathKeys[f];
+        if (!isJsonData(currentData) || isJsonValue(currentData) || !currentData.hasOwnProperty(key)) {
             return;
         }
-        return findFieldValue(
-            mutableReversedFieldPathSegments,
-            jsonData instanceof Array ? jsonData[Number(key)] : jsonData[key],
-        );
+        currentData = Array.isArray(currentData) ? currentData[Number(key)] : currentData[key];
     }
-    return jsonData;
+    return isJsonData(currentData) ? currentData : undefined;
 };
 
 const renderFieldValue = (value?: JsonData) => {
     if (!isJsonData(value)) {
         return '';
     } else if (!isJsonValue(value)) {
-        return value instanceof Array ? '[...]' : '{...}';
+        return Array.isArray(value) ? '[...]' : '{...}';
     }
     return `${value}`;
 };
@@ -81,7 +77,7 @@ const renderFieldValue = (value?: JsonData) => {
 const renderFieldType = (value?: JsonData) => {
     if (!isJsonData(value)) {
         return 'invalid';
-    } else if (value instanceof Array) {
+    } else if (Array.isArray(value)) {
         return 'array';
     } else if (value === null) {
         return 'null';
@@ -117,7 +113,7 @@ export const App: React.FC = () => {
     const handleFieldPathInputChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
             const fieldPath = event.target.value;
-            const fieldValue = findFieldValue(getMutableReversedFieldPathSegments(fieldPath), jsonData);
+            const fieldValue = findFieldValue(getFieldPathKeys(fieldPath), jsonData);
             setActiveField({fieldPath, fieldValue});
         },
         [jsonData],
@@ -125,7 +121,7 @@ export const App: React.FC = () => {
 
     useEffect(() => {
         const {fieldPath} = activeField;
-        const fieldValue = findFieldValue(getMutableReversedFieldPathSegments(fieldPath), jsonData);
+        const fieldValue = findFieldValue(getFieldPathKeys(fieldPath), jsonData);
         if (isJsonData(fieldValue)) {
             setActiveField({fieldPath, fieldValue});
         } else if (isJsonData(jsonData)) {
