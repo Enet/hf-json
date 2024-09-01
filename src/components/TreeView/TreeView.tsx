@@ -1,3 +1,5 @@
+import {memo} from 'react';
+
 import {TreeNode} from 'components/TreeNode/TreeNode';
 import {JsonData} from 'types/json';
 import {noop} from 'utils/common';
@@ -10,7 +12,7 @@ type Props = {
     onNodeClick?: (nodePath: string, nodeValue: JsonData) => void;
 };
 
-export const TreeView: React.FC<Props> = ({jsonData, onNodeClick = noop}) => {
+export const TreeView: React.FC<Props> = memo(({jsonData, onNodeClick = noop}) => {
     return (
         <div className={styles.treeView}>
             {isJsonData(jsonData) ? (
@@ -20,4 +22,4 @@ export const TreeView: React.FC<Props> = ({jsonData, onNodeClick = noop}) => {
             )}
         </div>
     );
-};
+});

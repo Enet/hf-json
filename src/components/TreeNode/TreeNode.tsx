@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import {useCallback, useMemo, useState} from 'react';
+import {memo, useCallback, useMemo, useState} from 'react';
 
 import {JsonData, JsonValue} from 'types/json';
 import {escapeKey} from 'utils/common';
@@ -17,7 +17,7 @@ type Props = {
     onClick: (nodePath: string, nodeValue: JsonData) => void;
 };
 
-export const TreeNode: React.FC<Props> = ({nodePath, nodeValue, onClick}) => {
+export const TreeNode: React.FC<Props> = memo(({nodePath, nodeValue, onClick}) => {
     const isArray = nodeValue instanceof Array;
 
     const entries = useMemo(() => {
@@ -97,4 +97,4 @@ export const TreeNode: React.FC<Props> = ({nodePath, nodeValue, onClick}) => {
             <br />
         </span>
     );
-};
+});

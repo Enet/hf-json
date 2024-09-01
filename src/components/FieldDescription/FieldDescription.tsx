@@ -1,3 +1,5 @@
+import {memo} from 'react';
+
 import styles from './FieldDescription.styl';
 
 type Props = {
@@ -5,11 +7,11 @@ type Props = {
     children?: React.ReactNode;
 };
 
-export const FieldDescription: React.FC<Props> = ({label, children}) => {
+export const FieldDescription: React.FC<Props> = memo(({label, children}) => {
     return (
         <label className={styles.fieldDescription}>
             <div className={styles.label}>{label}</div>
             <div className={styles.value}>{children}</div>
         </label>
     );
-};
+});
