@@ -143,7 +143,7 @@ export const App: React.FC = () => {
                 </FieldDescription>
                 <FieldDescription label='Field Value'>{renderFieldValue(fieldValue)}</FieldDescription>
                 <FieldDescription label='Field Type'>{renderFieldType(fieldValue)}</FieldDescription>
-                <br />
+                <br className={styles.lineBreak} />
                 <TreeView jsonData={jsonData} onNodeClick={handleTreeViewNodeClick} />
             </div>
             <div className={styles.right}>

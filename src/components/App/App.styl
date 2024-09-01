@@ -12,17 +12,25 @@
 .right
     flex: 1
 
-    @media (max-width: $w800Breakpoint)
-        height: 50vh
-
 .left
     display: flex
     flex-flow: column nowrap
     padding: 4 * $baseSize
     box-sizing: border-box
 
+    @media (max-width: $w800Breakpoint)
+        height: 65vh
+        padding: 2 * $baseSize
+
 .right
     font-size: 0
+
+    @media (max-width: $w800Breakpoint)
+        height: 35vh
+
+.lineBreak
+    @media (max-width: $w800Breakpoint)
+        display: none
 
 .fieldPathInput
     padding: $baseSize
@@ -46,3 +54,6 @@
     color: $colorSkyBlue
     resize: none
     box-sizing: border-box
+
+    @media (max-width: $w800Breakpoint)
+        padding: 2 * $baseSize

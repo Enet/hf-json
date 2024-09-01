@@ -12,7 +12,6 @@ textarea
 
 textarea,
 input
-    font-size: 4 * $baseSize
     font-family: monospace
 
 html,
@@ -21,5 +20,14 @@ body,
     height: 100%
     min-height: 100%
     font-family: sans-serif
-    font-size: 4 * $baseSize
     line-height: 1.5
+
+html,
+body,
+:global(#appRoot),
+textarea,
+input
+    font-size: 4 * $baseSize
+
+    @media (max-width: $w800Breakpoint)
+        font-size: 3 * $baseSize
