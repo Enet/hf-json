@@ -28,8 +28,10 @@ const initialJsonData = {
 
 const initialTextData = JSON.stringify(initialJsonData, null, 4);
 
-const getFieldPathKeys = (fieldPath: string) => {
-    const unifiedFieldPath = fieldPath.replace(/\[(\d+)\]/g, '.$1');
+const getFieldPathKeys = (fieldPath: string, isTopLevelArrayMode: boolean) => {
+    const unifiedFieldPath = fieldPath
+        .replace(/^\[(\d+)\]/, isTopLevelArrayMode ? '$1' : '.$1') // index of top level array
+        .replace(/\[(\d+)\]/g, '.$1'); // indices of nested arrays
     const fieldPathKeys: string[] = [];
     let keyStartIndex = 0;
     let isCharacterEscaped = false;
@@ -46,6 +48,9 @@ const getFieldPathKeys = (fieldPath: string) => {
             fieldPathKeys.push(unescapeKey(escapedKey));
             keyStartIndex = u + 1;
         }
+    }
+    if (isCharacterEscaped) {
+        keyStartIndex++; // single escaping backslash ends the line
     }
     if (fieldPath) {
         fieldPathKeys.push(unescapeKey(unifiedFieldPath.slice(keyStartIndex)));
@@ -106,14 +111,18 @@ export const App: React.FC = () => {
     }, []);
 
     const handleTreeViewNodeClick = useCallback((nodePath: string, nodeValue: JsonData) => {
-        const fieldPath = nodePath.replace(/\.\[(\d+)\]/g, '[$1]').replace(/^\./, '');
+        const fieldPath = nodePath
+            .replace(/\.\[(\d+)\]/g, '[$1]')
+            .replace(/^\.$/, '\\') // path of empty key in top level object must be \
+            .replace(/^\./, '');
         setActiveField({fieldPath, fieldValue: nodeValue});
     }, []);
 
     const handleFieldPathInputChange = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
             const fieldPath = event.target.value;
-            const fieldValue = findFieldValue(getFieldPathKeys(fieldPath), jsonData);
+            const fieldPathKeys = getFieldPathKeys(fieldPath, Array.isArray(jsonData));
+            const fieldValue = findFieldValue(fieldPathKeys, jsonData);
             setActiveField({fieldPath, fieldValue});
         },
         [jsonData],
@@ -121,7 +130,8 @@ export const App: React.FC = () => {
 
     useEffect(() => {
         const {fieldPath} = activeField;
-        const fieldValue = findFieldValue(getFieldPathKeys(fieldPath), jsonData);
+        const fieldPathKeys = getFieldPathKeys(fieldPath, Array.isArray(jsonData));
+        const fieldValue = findFieldValue(fieldPathKeys, jsonData);
         if (isJsonData(fieldValue)) {
             setActiveField({fieldPath, fieldValue});
         } else if (isJsonData(jsonData)) {
